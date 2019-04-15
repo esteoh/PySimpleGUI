@@ -2,6 +2,7 @@
 import sys
 if sys.version_info[0] >= 3:
     import PySimpleGUI as sg
+    # import PySimpleGUIQt as sg      # portable to QT
 else:
     import PySimpleGUI27 as sg
 
@@ -23,31 +24,17 @@ def MediaPlayerGUI():
 
     # A text element that will be changed to display messages in the GUI
 
+    ImageButton = lambda image_filename, key:sg.Button('', button_color=(background,background), image_filename=image_filename, image_size=(50, 50), image_subsample=2, border_width=0, key=key)
 
     # define layout of the rows
-    layout= [[sg.Text('Media File Player',size=(17,1), font=("Helvetica", 25))],
+    layout= [[sg.Text('Media File Player', font=("Helvetica", 25))],
              [sg.Text('', size=(15, 2), font=("Helvetica", 14), key='output')],
-             [sg.Button('', button_color=(background,background),
-                                image_filename=image_restart, image_size=(50, 50), image_subsample=2, border_width=0, key='Restart Song'),
+             [ImageButton(image_restart, key='Restart Song'), sg.Text(' ' * 2),
+              ImageButton(image_pause, key='Pause'),
                                 sg.Text(' ' * 2),
-              sg.Button('', button_color=(background,background),
-                                image_filename=image_pause, image_size=(50, 50), image_subsample=2, border_width=0, key='Pause'),
+              ImageButton(image_next, key='Next'),
                                 sg.Text(' ' * 2),
-              sg.Button('', button_color=(background,background), image_filename=image_next, image_size=(50, 50), image_subsample=2, border_width=0, key='Next'),
-                                sg.Text(' ' * 2),
-              sg.Text(' ' * 2), sg.Button('', button_color=(background,background),
-                                image_filename=image_exit, image_size=(50, 50), image_subsample=2, border_width=0, key='Exit')],
-             [sg.Text('_'*20)],
-             [sg.Text(' '*30)],
-            [
-             sg.Slider(range=(-10, 10), default_value=0, size=(10, 20), orientation='vertical', font=("Helvetica", 15)),
-             sg.Text(' ' * 2),
-             sg.Slider(range=(-10, 10), default_value=0, size=(10, 20), orientation='vertical', font=("Helvetica", 15)),
-             sg.Text(' ' * 2),
-             sg.Slider(range=(-10, 10), default_value=0, size=(10, 20), orientation='vertical', font=("Helvetica", 15))],
-             [sg.Text('   Bass', font=("Helvetica", 15), size=(9, 1)),
-             sg.Text('Treble', font=("Helvetica", 15), size=(7, 1)),
-             sg.Text('Volume', font=("Helvetica", 15), size=(7, 1))]
+              sg.Text(' ' * 2),ImageButton(image_exit, key='Exit')],
              ]
 
     # Open a form, note that context manager can't be used generally speaking for async forms

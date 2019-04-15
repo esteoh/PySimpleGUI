@@ -19,6 +19,12 @@ with
 There is a short section in the Readme with instruction on installing PySimpleGUI  
   
 If you like this Cookbook, then you'll LOVE the 100+ sample programs that are just like these.  You'll find them in the GitHub at http://www.PySimpleGUI.com.  These Recipes are simply several of those programs displayed in document format.  
+
+# Experimental repl.it Embedded Windows
+
+You'll find a few of these Recipes are running in your browser window using PySimpleGUIWeb.  They are included so that you can immediately play around with the SDK before installing one of the PySimpleGUI variants on your computer.
+
+This is a new capability for PySimpleGUI that has only very recently been started.  Only a few of the elements are operational using PySimpleGUIWeb.  So, be prepared for some bugs.   It's got a ways to go, but still seemed valuable to include.
       
 # Copy these design patterns!      
       
@@ -41,7 +47,7 @@ This will be the most common pattern you'll follow if you are not using an "even
 import PySimpleGUI as sg      
     
 layout = [[sg.Text('My one-shot window.')],      
-                 [sg.InputText(), sg.FileBrowse()],      
+                 [sg.InputText()],      
                  [sg.Submit(), sg.Cancel()]]      
       
 window = sg.Window('Window Title').Layout(layout)    
@@ -49,8 +55,11 @@ window = sg.Window('Window Title').Layout(layout)
 event, values = window.Read()    
 window.Close()
     
-source_filename = values[0]    
+text_input = values[0]    
+print(text_input)
 ```    
+
+<iframe height="800px" width="100%" src="https://repl.it/@PySimpleGUI/Design-Pattern-1-One-shot-Window?lite=true" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>
     
     
 ## Pattern 2 A - Persistent window (multiple reads using an event loop)      
@@ -78,6 +87,10 @@ while True:
 
 window.Close()
 ```    
+
+<iframe height="800px" width="100%" src="https://repl.it/@PySimpleGUI/Design-Pattern-2A-Persistent-Window?lite=true" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>
+
+
 
 ## Pattern 2 B - Persistent window (multiple reads using an event loop + updates data in window)   
 
@@ -112,7 +125,7 @@ while True:                 # Event Loop
 window.Close()
 ```
 
-
+<iframe height="800px" width="100%" src="https://repl.it/@PySimpleGUI/Design-Pattern-2B-Persistent-Window-with-Updates?lite=false" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>
 
 
 # Simple Data Entry - Return Values As List      
@@ -139,6 +152,8 @@ Same GUI screen except the return values are in a list instead of a dictionary a
     print(event, values[0], values[1], values[2])      
 ```    
       
+<iframe height="800px" width="100%" src="https://repl.it/@PySimpleGUI/Cookbook-Return-Values-as-List?lite=true" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>
+
 # Simple data entry - Return Values As Dictionary      
 A simple GUI with default values.  Results returned in a dictionary.    
       
@@ -165,7 +180,11 @@ A simple GUI with default values.  Results returned in a dictionary.
     
     print(event, values['_NAME_'], values['_ADDRESS_'], values['_PHONE_'])      
 ```      
----------------------      
+
+
+<iframe height="800px" width="100%" src="https://repl.it/@PySimpleGUI/Cookbook-Return-Values-As-Dictionary?lite=true" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>
+
+-------      
       
 
 
@@ -326,7 +345,8 @@ while True:
         timer_running = not timer_running
     window.FindElement('_OUTPUT_').Update('{:02d}:{:02d}.{:02d}'.format((i // 100) // 60, (i // 100) % 60, i % 100))
 ```          
-           
+
+<iframe height="800px" width="100%" src="https://repl.it/@PySimpleGUI/Cookbook-Timer?lite=true" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>           
       
 --------      
       
@@ -548,6 +568,35 @@ This Window doesn't close after button clicks.  To achieve this the buttons are 
           ExecuteCommandSubprocess(value[0])      
 ```    
      
+
+## Launch a Program With a Button
+
+Very simple script that will launch a program as a subprocess.  Great for making a desktop launcher toolbar.
+
+```python
+import subprocess  
+import PySimpleGUI as sg  
+  
+CHROME = r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"  
+  
+  
+layout = [  [sg.Text('Text area', key='_TEXT_')],  
+            [sg.Input(do_not_clear=True, key='_URL_')],  
+            [sg.Button('Chrome'), sg.Button('Exit')]]  
+  
+window = sg.Window('Window Title').Layout(layout)  
+  
+while True:             # Event Loop  
+  event, values = window.Read()  
+    print(event, values)  
+    if event is None or event == 'Exit':  
+        break  
+ if event == 'Chrome':  
+        sp = subprocess.Popen([CHROME, values['_URL_']], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  
+  
+window.Close()
+```
+
 ## Machine Learning GUI      
 A standard non-blocking GUI with lots of inputs.      
       
@@ -718,7 +767,77 @@ This simple program keep a window open, taking input values until the user termi
             break      
 ```      
       
-      
+## One Element Updating  Another - Compound Elements
+
+![image](https://user-images.githubusercontent.com/13696193/49649095-1be40700-f9f6-11e8-981e-f56eb8404ae7.png)
+   
+You can easily build "compound elements" in a single like of code.  This recipe shows you how to add a numeric value onto a slider.
+
+```python
+import PySimpleGUI as sg  
+  
+layout = [[sg.Text('Slider Demonstration'), sg.Text('', key='_OUTPUT_')],  
+            [sg.T('0',key='_LEFT_'),  
+             sg.Slider((1,100), key='_SLIDER_', orientation='h', enable_events=True, disable_number_display=True),  
+             sg.T('0', key='_RIGHT_')],  
+            [sg.Button('Show'), sg.Button('Exit')]]  
+  
+window = sg.Window('Window Title').Layout(layout)  
+  
+while True:             # Event Loop  
+  event, values = window.Read()  
+    print(event, values)  
+    if event is None or event == 'Exit':  
+        break  
+  window.Element('_LEFT_').Update(values['_SLIDER_'])  
+    window.Element('_RIGHT_').Update(values['_SLIDER_'])  
+  
+window.Close()
+```
+
+<iframe height="800px" width="100%" src="https://repl.it/@PySimpleGUI/Cookbook-Compound-Element?lite=true" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>
+
+## Multiple Windows
+
+This recipe is a design pattern for multiple windows where the first window is not active while the second window is showing.  The first window is hidden to discourage continued interaction.
+
+
+```Python
+"""  
+ PySimpleGUI The Complete Course Lesson 7 - Multiple Windows"""  
+import PySimpleGUI as sg  
+  
+# Design pattern 1 - First window does not remain active  
+  
+layout = [[ sg.Text('Window 1'),],  
+          [sg.Input(do_not_clear=True)],  
+          [sg.Text('', key='_OUTPUT_')],  
+          [sg.Button('Launch 2')]]  
+  
+win1 = sg.Window('Window 1').Layout(layout)  
+win2_active=False  
+while True:  
+    ev1, vals1 = win1.Read(timeout=100)  
+    if ev1 is None:  
+        break  
+  win1.FindElement('_OUTPUT_').Update(vals1[0])  
+  
+    if ev1 == 'Launch 2'  and not win2_active:  
+        win2_active = True  
+  win1.Hide()  
+        layout2 = [[sg.Text('Window 2')],       # note must create a layout from scratch every time. No reuse  
+  [sg.Button('Exit')]]  
+  
+        win2 = sg.Window('Window 2').Layout(layout2)  
+        while True:  
+            ev2, vals2 = win2.Read()  
+            if ev2 is None or ev2 == 'Exit':  
+                win2.Close()  
+                win2_active = False  
+  win1.UnHide()  
+                break
+```
+   
 ## tkinter Canvas Widget      
       
 The Canvas Element is one of the few tkinter objects that are directly accessible.  The tkinter Canvas widget itself can be retrieved from a Canvas Element like this:      
@@ -852,6 +971,9 @@ There are a number of features used in this Recipe including:
       
         window.FindElement('input').Update(keys_entered)  # change the window to reflect current key string    
 ```
+
+<iframe height="800px" width="100%" src="https://repl.it/@PySimpleGUI/Cookbook-Keypad-Touchscreen-Entry?lite=true" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>
+
       
 ## Animated Matplotlib Graph      
       
@@ -1428,3 +1550,9 @@ That's all... Run your `my_program.exe` file on the Windows machine of your choo
 (famous last words that screw up just about anything being referenced)      
       
 Your EXE file should run without creating a "shell window".  Only the GUI window should show up on your taskbar.
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTEzNTc5NjUyNTUsLTk0Mjc2ODgzNywtMz
+UwNzA2ODE4LC0xOTgzMjAzNjMwLC0xMDAwMjc2OTU0LC0xNDAy
+ODQwOTg2LDY2ODc4OTc0OSwtMTE3NDc5OTg5Miw3MTcwNDk2Nj
+AsLTY3OTU0OTY3NSwtMzM5MzcxMzUyXX0=
+-->
